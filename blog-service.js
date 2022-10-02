@@ -57,6 +57,7 @@ module.exports.initialize = function () {
     });
   };
   
+  
   //getPublishedPosts()
   /**•	This function will provide an array of "post" objects whose published property is true using the resolve method of the returned promise.  / */
 
