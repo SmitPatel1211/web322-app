@@ -1,9 +1,9 @@
 /*********************************************************************************
-*  WEB322 – Assignment 02
+*  WEB322 – Assignment 03
 *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
 *  (including 3rd party web sites) or distributed to other students.
 * 
-*  Name: Smit Anjaykumar Patel Student ID: 104424213 Date: 02 octomber 2022
+*  Name: Smit Anjaykumar Patel Student ID: 104424213 Date: 21 octomber 2022
 *
 *  Cyclic Web App URL: https://brave-blue-bighorn-sheep.cyclic.app/about
 *
@@ -108,13 +108,20 @@ cloudinary.config({
 //categories
 app.get('/categories', (req, res) => {
     
-     service.getCategories().then(data => res.json(data)).catch(err => res.json({"message: err" : err}));
+     service.getCategories().then
+     (data => res.json(data)).catch(err => res.json(
+        {"message: err" : err}
+        ));
 })
 
 
 app.post('/posts/add', (req, res) => {
+
     data.addPost(req.body).then(() => {
-      res.redirect("/posts");
+
+      res.redirect
+      ("/posts");
+
     })
 }); 
 
@@ -133,11 +140,10 @@ app.use(function (req, res)
 
 
 
-const upload = multer(); // no { storage: storage } since we are not using disk storage
-
+const upload = multer(); 
 
 app.post('/posts/add',upload.single("featureImage"),(req,res)=>{
-    if(req.file){
+    if(req.file){ //	If postData.published is undefined
         let streamUpload = (req) => {
             return new Promise((resolve, reject) => {
                 let stream = cloudinary.uploader.upload_stream(
@@ -166,11 +172,20 @@ app.post('/posts/add',upload.single("featureImage"),(req,res)=>{
     }else{
         processPost("");
     }
-     
-    function processPost(imageUrl){
+
+
+
+     //Process the req.body and add it as a new Blog Post before redirecting to /posts
+    function processPost
+    (imageUrl){
+
         req.body.featureImage = imageUrl;
-        service.addPost(req.body).then(()=>{
-          res.redirect("/posts");
+
+        service.
+        addPost(req.body).then(()=>{
+
+          res.redirect
+          ("/posts");
         })     
     } 
     
