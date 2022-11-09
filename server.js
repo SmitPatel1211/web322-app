@@ -64,7 +64,7 @@ app.get("/about",(req,res)=>{
     res.render("about");
 });
 
-const stripJs = require('strip-js');
+
 
 app.engine('.hbs', exphbs.engine({ 
 
