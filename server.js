@@ -1,5 +1,5 @@
 /*********************************************************************************
-*  WEB322 – Assignment 03
+*  WEB322 – Assignment 04
 *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
 *  (including 3rd party web sites) or distributed to other students.
 * 
@@ -14,20 +14,19 @@
 
 
 const express = require('express');
-
-const path = require('path');
-
-const service = require('./blog-service');
- 
+const blogData = require("./blog-service");
+const multer = require("multer");
+const stripJs=require('strip-js');
+const cloudinary = require('cloudinary').v2;
+const streamifier = require('streamifier');
+const path = require("path");
 const app = express();
 
 
-const multer = require('multer');
-const cloudinary = require('cloudinary').v2 ;
-const streamifier = require('streamifier') ;
+
+const HTTP_PORT = process.env.PORT || 8080;
 
 
-// configure cloudinary
 cloudinary.config({
     
     cloud_name: 'ddzbrotu5',
@@ -36,114 +35,231 @@ cloudinary.config({
     secure: true
 });
 
- 
- //"TODO: get all posts who have published==true"
- const HTTP_PORT = process.env.port || 8080;
- //	The server must listen on process.env.PORT || 8080
+const upload = multer();
 
- function onHttpStart(){
+const exphbs = require('express-handlebars');
+app.set('view engine', '.hbs');
 
-    console.log(
-        "Express http server listening on "+HTTP_PORT
-        
-    );
+
+//fix the navigation issue
+app.use(function(req,res,next){
+    let route = req.path.substring(1);
+    app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.*)/, "") : route.replace(/\/(.*)/, ""));
+    app.locals.viewingCategory = req.query.category;
+    next();
+});
+
+function onHTTPStart(){
+    console.log("Express http server listening on "+PORT);
 }
- 
- app.use(express.static('public'));
- 
- app.get('/', (req, res) => {
 
-     res.redirect('/about');
- })
- 
- app.get('/about', (req, res) => {
-     res.sendFile(path.join(__dirname, 'views/about.html'));
- })
+app.get('/',(req,res)=>{
+    res.redirect('/blog');
+})
 
- app.get('/posts/add',(req, res)=> {
-    res.sendFile(path.join(__dirname, 'views/addPost.html'))
-
- })
- 
+app.use(express.static("views"));
 
 
- ///blog
- app.get('/blog', (req, res) => {
-     service.getPublishedPosts().then((data)=>{res.json({data});
-    }).catch ((err)=>{res.json({"message: err" : err})});
- })
+app.get("/about",(req,res)=>{
+    res.render("about");
+});
+
+const stripJs = require('strip-js');
+
+app.engine('.hbs', exphbs.engine({ 
+
+    extname: '.hbs',
+    helpers: { 
+
+        safeHTML: function(context) {
+            return stripJs(context)
+        },
 
 
- //posts
- //then(data => res.json(data)).catch(err => res.json({"message: err" : err}));
- app.get('/posts', (req, res) => {
+        navLink: function(url, options){
+            return '<li' + 
+                ((url == app.locals.activeRoute) ? ' class="active" ' : '') + 
+                '><a href="' + url + '">' + options.fn(this) + '</a></li>';
+        },
 
+        
+
+        
+        equal: function (lvalue, rvalue, options) {
+            if (arguments.length < 3)
+
+                throw new Error("Handlebars Helper equal needs 2 parameters");
+
+            if (lvalue != rvalue) {
+                return options.inverse(this);
+            }
+            
+            
+            else {
+                return options.fn(this);
+            }
+        }        
+    }
+}));
+
+app.use(express.static('public'));
+
+app.get('/blog', async (req, res) => {
+
+    
+    let viewData = {};
+
+    try{
+        
+
+        
+        let posts = [];
+
+        
+        if(req.query.category){
+            
+            
+            posts = await blogData.getPublishedPostsByCategory(req.query.category);
+        }else{
+            
+            posts = await blogData.getPublishedPosts();
+        }
+        
+
+        
+        posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
+
+        
+        let post = posts[0]; 
+
+       
+        viewData.posts = posts;
+        viewData.post = post;
+
+    }catch(err){
+        viewData.message = "no results";
+    }
+
+    try{
+        
+        let categories = await blogData.getCategories();
+
+        
+        viewData.categories = categories;
+    }catch(err){
+        viewData.categoriesMessage = "no results"
+    }
+
+    
+    res.render("blog", {data: viewData})
+
+});
+
+app.get('/blog/:id', async (req, res) => {
+
+    // Declare an object to store properties for the view
+    let viewData = {};
+
+    try{
+
+        // declare empty array to hold "post" objects
+        let posts = [];
+
+        // if there's a "category" query, filter the returned posts by category
+        if(req.query.category){
+            // Obtain the published "posts" by category
+            posts = await blogData.getPublishedPostsByCategory(req.query.category);
+        }else{
+            // Obtain the published "posts"
+            posts = await blogData.getPublishedPosts();
+        }
+
+        // sort the published posts by postDate
+        posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
+
+        // store the "posts" and "post" data in the viewData object (to be passed to the view)
+        viewData.posts = posts;
+
+    }catch(err){
+        viewData.message = "no results";
+    }
+
+    try{
+        // Obtain the post by "id"
+        viewData.post = await blogData.getPostById(req.params.id);
+    }catch(err){
+        viewData.message = "no results"; 
+    }
+
+    try{
+        // Obtain the full list of "categories"
+        let categories = await blogData.getCategories();
+
+        // store the "categories" data in the viewData object (to be passed to the view)
+        viewData.categories = categories;
+    }catch(err){
+        viewData.categoriesMessage = "no results"
+    }
+
+    // render the "blog" view with all of the data (viewData)
+    res.render("blog", {data: viewData})
+});
+
+
+app.get('/posts',(req,res)=>{
     if(req.query.category){
-        service.getPostsByCategory(req.query.category).then((categoryId)=>{
-            console.log("expected run");
-            res.json({categoryId})
+        blogData.getPostsByCategory(req.query.category).then((categoryId)=>{
+            res.render("posts",{posts:categoryId});
+         
         }).catch((err)=>{
             res.json({message:err});
         })
     }
     else if(req.query.minDate){
-        service.getPostsByMinDate(req.query.minDate).then((databydate)=>{
+        blogData.getPostsByMinDate(req.query.minDate).then((databydate)=>{
             res.json({databydate})
         }).catch((err)=>{
             res.json({message:"error"});
         })
     }
     else{
-        service.getAllPosts().then((data)=>{
-            res.json({data});
+        blogData.getAllPosts().then((data)=>{
+            
+            res.render("posts",{posts:data}); 
         }).catch((err)=>{
-            res.json({message:err});
+           
+            res.render("posts",{message:"no results"});
         })
     }
-    
-    
-  });
- 
-
-//categories
-app.get('/categories', (req, res) => {
-    
-     service.getCategories().then
-     (data => res.json(data)).catch(err => res.json(
-        {"message: err" : err}
-        ));
-})
-
-
-app.post('/posts/add', (req, res) => {
-
-    data.addPost(req.body).then(() => {
-
-      res.redirect
-      ("/posts");
-
-    })
-}); 
-
-
-
-//[ no matching route ]
- 
-app.use(function (req, res)
-{
-  res.status(404).send('ERROR : Page Not Found');
 });
 
 
+app.get('/posts',(req,res)=>{
+    blogData.getAllPosts().then((data)=>{
+       res.render("posts",{posts:data});   
+    }).catch((err)=>{
+       res.render("posts",{message:"no results"});
+    })
+});
 
+app.get('/categories',(req,res)=>{
 
+    blogData.getCategories().then((data)=>{
+       
+        res.render("categories",{categories:data})
 
+    }).catch((err)=>{
+        
+        res.render("categories",{message:"no results"});
+    })
+});
 
-
-const upload = multer(); 
+app.get('/posts/add',(req,res)=>{
+    res.render("addPost");
+})
 
 app.post('/posts/add',upload.single("featureImage"),(req,res)=>{
-    if(req.file){ //	If postData.published is undefined
+    if(req.file){
         let streamUpload = (req) => {
             return new Promise((resolve, reject) => {
                 let stream = cloudinary.uploader.upload_stream(
@@ -172,61 +288,36 @@ app.post('/posts/add',upload.single("featureImage"),(req,res)=>{
     }else{
         processPost("");
     }
-
-
-
-     //Process the req.body and add it as a new Blog Post before redirecting to /posts
-    function processPost
-    (imageUrl){
-
+     
+    function processPost(imageUrl){
         req.body.featureImage = imageUrl;
-
-        service.
-        addPost(req.body).then(()=>{
-
-          res.redirect
-          ("/posts");
-        })     
+        blogData.addPost(req.body).then(()=>{
+        res.redirect("/posts");
+        })
+    
+        
+        
     } 
     
-  })
-
-  
-
-  app.get("/posts/:id", (req, res) => {
-    service.getPostById(req.params.id).then((postData) => {
-      res.json(postData)
-    }).catch((err) => {
-      res.send(err)
-    })
-  })
-
-
-  
-
-
-  app.get("/categories/:id", (req, res) => {
-    data.getCategoryByPost(req.params.id).then((catData) => {
-      res.json(catData)
-    }).catch((err) => {
-      res.send(err)
-    })
-  })
-
-
-  app.get('*',(req,res)=>{
-    res.status(404).send("Page Not Available  ");
 })
 
 
-service.initialize().then(()=>
-{
-    //the promise will reject if any error occurred during the process
+app.get("/posts/:id",(req,res)=>{
+    blogData.getPostById(req.params.id).then((data)=>{
+        res.json({data});
+    }).catch((err)=>{
+        res.json({message:err});
+    })
+});
 
-        app.listen(HTTP_PORT, onHttpStart);
-}).catch((err) => 
 
-{
-    console.log('SORRY!! not able to read the file '+ err)
 
+app.get('*',(req,res)=>{
+   res.render("404");
 })
+
+blogData.initialize().then(()=>{
+    app.listen(PORT,onHTTPStart());
+}).catch(()=>{
+ console.log("unable to read file");
+});
