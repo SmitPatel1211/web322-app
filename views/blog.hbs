@@ -3,20 +3,6 @@
         {{#if data.post}}
         <article>
             <h2>{{data.post.title}}</h2>
-<<<<<<< HEAD
-
-            <img src={{data.post.featureImage}} alt="feature Image" style="width:100%" />
-
-            <br /><br />
-
-            {{#safeHTML data.post.body}}{{/safeHTML}}
-            <br /><br />
-            <strong>Category:</strong>{{data.post.category}}<br />
-
-            <strong>Last Updated:</strong> {{data.post.postDate}}
-
-
-=======
             <img src={{data.post.featureImage}} alt="feature Image" style="width:100%" />
             <br /><br />
             {{#safeHTML data.post.body}}{{/safeHTML}}
@@ -26,23 +12,10 @@
             <strong>Last Updated:</strong> {{data.post.postDate}}
 
             
->>>>>>> d18797b (Merge branch 'main' of https://github.com/SmitPatel1211/web322-app)
         </article>
         {{else}}
         <div class="col-md-12 text-center">
             <h2>{{data.message}}</h2>
-<<<<<<< HEAD
-            <p>Sorry! You can tey another "Post / Category"</p>
-        </div>
-        {{/if}}
-    </section>
-    <aside class="col-md-3">
-        <br /><br />
-         {{#if data.posts}}
-        <h4>Posts</h4>
-
-        <ul class="list-group">
-=======
             <p>Try another post/catocary __--</p>
         </div>
         {{/if}}
@@ -56,7 +29,6 @@
         <ul class="list-group">
 
 
->>>>>>> d18797b (Merge branch 'main' of https://github.com/SmitPatel1211/web322-app)
             {{#each data.posts}}
 
             <a href="/blog/{{id}}?category={{../viewingCategory}}" class="list-group-item">{{title}}</a>
@@ -65,22 +37,6 @@
             {{/if}}
         </ul>
 
-<<<<<<< HEAD
-{{#if data.categories}}
-
-        <h4>Categories</h4>
-
-        <ul class="list-group">
-          {{#each data.categories}}
-
-
-            <a href="/blog?category={{id}}" class="list-group-item">
-            {{category}}
-            </a>
-
-            {{/each}}
-
-=======
         {{#if data.categories}}
         <h4>Categories</h4>
 
@@ -89,7 +45,6 @@
             {{#each data.categories}}
             <a href="/blog?category={{id}}" class="list-group-item">{{category}}</a>
             {{/each}}
->>>>>>> d18797b (Merge branch 'main' of https://github.com/SmitPatel1211/web322-app)
         </ul>
         {{/if}}
     </aside>
