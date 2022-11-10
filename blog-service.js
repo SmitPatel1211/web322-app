@@ -1,119 +1,142 @@
-const fs = require("fs");
+var posts=[];
+var categories=[];
+const { doesNotReject } = require("assert");
+const fs=require("fs");
+const { resolve } = require("path");
 
-let posts = [];
-let categories = [];
 
-module.exports.initialize = function () {
-    return new Promise((resolve, reject) => {
-        fs.readFile('./data/posts.json', 'utf8', (err, data) => {
-            if (err) {
-                reject(err);
-            } else {
-                posts = JSON.parse(data);
-
-                fs.readFile('./data/categories.json', 'utf8', (err, data) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        categories = JSON.parse(data);
-                        resolve();
-                    }
-                });
+exports.initialize=()=>{
+    return new Promise((resolve,reject)=>{
+        fs.readFile('./data/posts.json',(err,data)=>{
+            if(err){
+                reject('unable to read file');
+            }
+            else{
+                posts=JSON.parse(data);
             }
         });
-    });
-}
 
-module.exports.getAllPosts = function(){
-    return new Promise((resolve,reject)=>{
-        (posts.length > 0 ) ? resolve(posts) : reject("no results returned"); 
-    });
-}
-
-module.exports.getPostsByCategory=(postcatId)=>{
-    return new Promise((resolve,reject)=>{
-     var pcategoryid=[];
-     for(let s =0; s < posts.length;s++){
-         if(posts[s].category==postcatId){
-             pcategoryid.push(posts[s]);
-         }
-     }
-     if(pcategoryid){
-         resolve(pcategoryid);
-     }else{
-         reject("no results returned");
-     }
+        fs.readFile('./data/categories.json',(err,data)=>{
+            if(err){
+                reject('unable to read file');
+            }
+            else{
+                categories=JSON.parse(data);
+            }
+        })
+        resolve();
     })
- } 
+}
 
-module.exports.getPostsByMinDate=(minDateStr)=>{
-    var pdateData=[];
+exports.getAllPosts=()=>{
+    return new Promise((resolve,reject)=>{
+        if(posts.length==0){
+            reject("no results returned");
+        }
+        else{
+            resolve(posts);
+        }
+    })
+}
+        
 
+exports.getPublishedPosts=()=>{
+    return new Promise((resolve,reject)=>{
+       const arr1=posts.filter(p=>p.published==true);
+       if(posts.length==0){
+        reject('no results returned');
+       }
+       else{
+        resolve(arr1);
+       }
+    })
+}
+
+exports.getCategories=()=>{
+    return new Promise((resolve,reject)=>{
+        if(categories.length==0){
+            reject('no results returned');
+        }
+        else{
+            resolve(categories);
+        }
+    })
+}
+
+exports.addPost=(postData)=>{
+    postData.published == undefined ? postData.published=false : postData.published=true;
+    postData.id=posts.length+1;
+    postData.postDate=new Date().toISOString().split('T',1)[0];
+    posts.push(postData);
+   // resolve(posts);
+    return new Promise((resolve,reject)=>{
+        if(posts.length==0){
+            reject('no results');
+        }
+        else{
+            resolve(posts);
+        }
+    })
+}
+
+exports.getPostsByCategory=(postcatId)=>{
+   return new Promise((resolve,reject)=>{
+    var postcategoryid=[];
+    for(let i =0; i < posts.length;i++){
+        if(posts[i].category==postcatId){
+            postcategoryid.push(posts[i]);
+        }
+    }
+    if(postcategoryid){
+        resolve(postcategoryid);
+    }else{
+        reject("no results returned");
+    }
+   })
+} 
+
+exports.getPostsByMinDate=(minDateStr)=>{
+    var postdate_Data=[];
     return new Promise((resolve,reject)=>{
       
-        for(let s =0; s < posts.length; s++){
-        if(new Date(posts[s].postDate) >= new Date(minDateStr)){
-            console.log("The postDate is more than the minimumdateSTR")
-            pdateData.push(posts[s]);
+        for(let i =0; i < posts.length; i++){
+        if(new Date(posts[i].postDate) >= new Date(minDateStr)){
+            console.log("The postDate value is greater than minDateStr")
+            postdate_Data.push(posts[i]);
         }
-        resolve(pdateData);
+        resolve(postdate_Data);
     }    
     })
 }
 
-module.exports.getPostById=(id)=>{
-    return new Promise((resolve,reject)=>{
-      var post_id;
-      for(let i=0;i<posts.length;i++){
-          if(posts[i].id==id){
-              post_id=posts[i];
-          }
-      }
-      if(post_id){
-          resolve(post_id);
-      }else{
-          reject("id not found");
-      }
-    })
-  }
-
-module.exports.addPost = function(postData){
-    return new Promise((resolve,reject)=>{
-        postData.published = postData.published ? true : false;
-        postData.id = posts.length + 1;
-        posts.push(postData);
-        resolve();
-    });
+exports.getPostById=(id)=>{
+  return new Promise((resolve,reject)=>{
+    var postid;
+    for(let i=0;i<posts.length;i++){
+        if(posts[i].id==id){
+            postid=posts[i];
+        }
+    }
+    if(postid){
+        resolve(postid);
+    }else{
+        reject("id not found");
+    }
+  })
 }
 
-module.exports.getPublishedPosts = function(){
+exports.getPublishedPostsByCategory=(category)=>{
     return new Promise((resolve,reject)=>{
-        let filteredPosts = posts.filter(post => post.published);
-        (filteredPosts.length > 0) ? resolve(filteredPosts) : reject("no results returned");
-    });
-}
-
-module.exports.getCategories = function(){
-    return new Promise((resolve,reject)=>{
-        (categories.length > 0 ) ? resolve(categories) : reject("no results returned"); 
-    });
-}
-
-
-module.exports.getPublishedPostsByCategory=(category)=>{
-    return new Promise((resolve,reject)=>{
-        const arrCheck=posts.filter(tc=>tc.published==true && tc.category==category);
+        const arr=posts.filter(tc=>tc.published==true && tc.category==category);
         if(posts.lenght==0){
-
-            reject("NO result RETURNED");
+            reject("no results returned");
+        }
+        else{
+            resolve(arr);
 
         }
-        
-
-      resolve(arrCheck);
-
-        
     })
 
 }
+
 
