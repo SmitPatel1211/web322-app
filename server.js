@@ -13,6 +13,7 @@
 
 
 
+<<<<<<< HEAD
 const express = require('express');
 const blogData = require("./blog-service");
 const multer = require("multer");
@@ -27,6 +28,20 @@ const app = express();
 const HTTP_PORT = process.env.PORT || 8080;
 
 
+=======
+const express=require("express");
+const path = require("path");
+const blogData=require("./blog-service");
+const multer=require("multer");
+const cloudinary = require('cloudinary').v2;
+const streamifier = require('streamifier');
+const stripJs=require('strip-js');
+const upload = multer(); 
+var app=express();
+var PORT=process.env.PORT||8080;
+
+
+>>>>>>> d18797b (Merge branch 'main' of https://github.com/SmitPatel1211/web322-app)
 cloudinary.config({
     
     cloud_name: 'ddzbrotu5',
@@ -35,6 +50,7 @@ cloudinary.config({
     secure: true
 });
 
+<<<<<<< HEAD
 const upload = multer();
 
 const exphbs = require('express-handlebars');
@@ -42,6 +58,15 @@ app.set('view engine', '.hbs');
 
 
 //fix the navigation issue
+=======
+ 
+
+
+
+
+const exphbs = require('express-handlebars');
+app.set('view engine', '.hbs');
+>>>>>>> d18797b (Merge branch 'main' of https://github.com/SmitPatel1211/web322-app)
 app.use(function(req,res,next){
     let route = req.path.substring(1);
     app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.*)/, "") : route.replace(/\/(.*)/, ""));
@@ -58,6 +83,7 @@ app.get('/',(req,res)=>{
 })
 
 app.use(express.static("views"));
+<<<<<<< HEAD
 
 
 app.get("/about",(req,res)=>{
@@ -155,6 +181,40 @@ app.get('/blog', async (req, res) => {
 
 });
 
+=======
+app.get("/about",(req,res)=>{
+    res.render("about");
+});
+
+
+app.engine('.hbs', exphbs.engine({ 
+    extname: '.hbs',
+    helpers: { 
+        safeHTML: function(context) {
+            return stripJs(context)
+        },
+        navLink: function(url, options){
+            return '<li' + 
+                ((url == app.locals.activeRoute) ? ' class="active" ' : '') + 
+                '><a href="' + url + '">' + options.fn(this) + '</a></li>';
+        },
+        equal: function (lvalue, rvalue, options) {
+            if (arguments.length < 3)
+                throw new Error("Handlebars Helper equal needs 2 parameters");
+            if (lvalue != rvalue) {
+                return options.inverse(this);
+            } else {
+                return options.fn(this);
+            }
+        }        
+    }
+}));
+
+app.use(express.static('public'));
+
+
+
+>>>>>>> d18797b (Merge branch 'main' of https://github.com/SmitPatel1211/web322-app)
 app.get('/blog/:id', async (req, res) => {
 
     // Declare an object to store properties for the view
@@ -206,16 +266,29 @@ app.get('/blog/:id', async (req, res) => {
 });
 
 
+<<<<<<< HEAD
 app.get('/posts',(req,res)=>{
     if(req.query.category){
         blogData.getPostsByCategory(req.query.category).then((categoryId)=>{
             res.render("posts",{posts:categoryId});
          
+=======
+
+app.get('/posts',(req,res)=>{
+    if(req.query.category){//query /posts?category
+        blogData.getPostsByCategory(req.query.category).then((categoryId)=>{
+            res.render("posts",{posts:categoryId});
+         //res.json({categoryId})
+>>>>>>> d18797b (Merge branch 'main' of https://github.com/SmitPatel1211/web322-app)
         }).catch((err)=>{
             res.json({message:err});
         })
     }
+<<<<<<< HEAD
     else if(req.query.minDate){
+=======
+    else if(req.query.minDate){//query /posts?minDate
+>>>>>>> d18797b (Merge branch 'main' of https://github.com/SmitPatel1211/web322-app)
         blogData.getPostsByMinDate(req.query.minDate).then((databydate)=>{
             res.json({databydate})
         }).catch((err)=>{
@@ -224,6 +297,7 @@ app.get('/posts',(req,res)=>{
     }
     else{
         blogData.getAllPosts().then((data)=>{
+<<<<<<< HEAD
             
             res.render("posts",{posts:data}); 
         }).catch((err)=>{
@@ -231,6 +305,66 @@ app.get('/posts',(req,res)=>{
             res.render("posts",{message:"no results"});
         })
     }
+=======
+            //res.json({data});
+            res.render("posts",{posts:data}); 
+        }).catch((err)=>{
+            //res.json({message:err});
+            res.render("posts",{message:"SORRY!!"});
+        })
+    }
+});
+
+app.get('/blog', async (req, res) => {
+
+   
+    let viewData = {};
+
+    try{
+        
+
+        
+        let posts = [];
+
+        
+        if(req.query.category){
+            
+            
+            posts = await blogData.getPublishedPostsByCategory(req.query.category);
+        }else{
+            
+            posts = await blogData.getPublishedPosts();
+        }
+        
+
+       
+        posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
+
+        
+        let post = posts[0]; 
+
+        
+        viewData.posts = posts;
+        viewData.post = post;
+
+    }catch(err){
+        viewData.message = "no results";
+    }
+
+    try{
+       
+        let categories = await blogData.getCategories();
+
+        
+        viewData.categories = categories;
+    }catch(err){
+        viewData.categoriesMessage = "no results"
+    }
+
+    
+    res.render("blog", {data: viewData})
+
+>>>>>>> d18797b (Merge branch 'main' of https://github.com/SmitPatel1211/web322-app)
 });
 
 
@@ -238,11 +372,16 @@ app.get('/posts',(req,res)=>{
     blogData.getAllPosts().then((data)=>{
        res.render("posts",{posts:data});   
     }).catch((err)=>{
+<<<<<<< HEAD
        res.render("posts",{message:"no results"});
+=======
+       res.render("posts",{message:"SORRY!!"});
+>>>>>>> d18797b (Merge branch 'main' of https://github.com/SmitPatel1211/web322-app)
     })
 });
 
 app.get('/categories',(req,res)=>{
+<<<<<<< HEAD
 
     blogData.getCategories().then((data)=>{
        
@@ -254,6 +393,16 @@ app.get('/categories',(req,res)=>{
     })
 });
 
+=======
+    blogData.getCategories().then((data)=>{
+        
+        res.render("categories",{categories:data})
+    }).catch((err)=>{
+        res.json({"message. SORRY!! ":err})
+    })
+});
+
+>>>>>>> d18797b (Merge branch 'main' of https://github.com/SmitPatel1211/web322-app)
 app.get('/posts/add',(req,res)=>{
     res.render("addPost");
 })
@@ -295,7 +444,11 @@ app.post('/posts/add',upload.single("featureImage"),(req,res)=>{
         res.redirect("/posts");
         })
     
+<<<<<<< HEAD
         
+=======
+       
+>>>>>>> d18797b (Merge branch 'main' of https://github.com/SmitPatel1211/web322-app)
         
     } 
     
@@ -319,5 +472,9 @@ app.get('*',(req,res)=>{
 blogData.initialize().then(()=>{
     app.listen(PORT,onHTTPStart());
 }).catch(()=>{
+<<<<<<< HEAD
  console.log("unable to read file");
+=======
+ console.log("SORRY!!");
+>>>>>>> d18797b (Merge branch 'main' of https://github.com/SmitPatel1211/web322-app)
 });
