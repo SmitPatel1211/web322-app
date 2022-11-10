@@ -253,7 +253,7 @@ blogData.initialize().then(() => {
     console.log(err);
 })
 
- 
+  
 app.engine(".hbs", exphbs.engine({
     extname: ".hbs",
     helpers: {
