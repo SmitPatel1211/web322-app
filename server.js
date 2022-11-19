@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/*********************************************************************************
+*  WEB322 – Assignment 04
+*  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
+*  (including 3rd party web sites) or distributed to other students.
+* 
+*  Name: Smit Anjaykumar Patel Student ID: 104424213 Date: 21 octomber 2022
+*
+*  Cyclic Web App URL: 
+*
+*  GitHub Repository URL: https://github.com/SmitPatel1211/web322-app
+*
+********************************************************************************/
+
+
+
+>>>>>>> 1e8913d (new)
 const express = require('express');
 const blogData = require("./blog-service");
 const multer = require("multer");

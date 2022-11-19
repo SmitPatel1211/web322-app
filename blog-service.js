@@ -3,7 +3,7 @@ const fs = require("fs");
 let posts = [];
 let categories = [];
 
-module.exports.initialize = function () {
+module.exports.initialize = function () { 
     return new Promise((resolve, reject) => {
         fs.readFile('./data/posts.json', 'utf8', (err, data) => {
             if (err) {
