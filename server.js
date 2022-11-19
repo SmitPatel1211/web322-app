@@ -1,20 +1,5 @@
-/*********************************************************************************
-*  WEB322 – Assignment 04
-*  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
-*  (including 3rd party web sites) or distributed to other students.
-* 
-*  Name: Smit Anjaykumar Patel Student ID: 104424213 Date: 21 octomber 2022
-*
-*  Cyclic Web App URL: 
-*
-*  GitHub Repository URL: https://github.com/SmitPatel1211/web322-app
-*
-********************************************************************************/
-
-
 const express = require('express');
 const blogData = require("./blog-service");
-
 const multer = require("multer");
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
@@ -24,23 +9,41 @@ const stripJs = require('strip-js');
 
 const app = express();
 
+
+
 const HTTP_PORT = process.env.PORT || 8080;
 
-
-
-const upload = multer();
-
 cloudinary.config({
-    
-    cloud_name: 'ddzbrotu5',
-    api_key: '443325629289184',
-    api_secret: 'X9KX_1V40PDN-ieoN7hEv_MIjFM',
+    cloud_name: 'Cloud Name',
+    api_key: 'API Key',
+    api_secret: 'API Secret',
     secure: true
 });
 
+const upload = multer();
 
-
-
+app.engine(".hbs", exphbs.engine({
+    extname: ".hbs",
+    helpers: {
+        navLink: function(url, options){
+            return '<li' + 
+                ((url == app.locals.activeRoute) ? ' class="active" ' : '') + 
+                '><a href="' + url + '">' + options.fn(this) + '</a></li>';
+        },
+        equal: function (lvalue, rvalue, options) {
+            if (arguments.length < 3)
+                throw new Error("Handlebars Helper equal needs 2 parameters");
+            if (lvalue != rvalue) {
+                return options.inverse(this);
+            } else {
+                return options.fn(this);
+            }
+        },
+        safeHTML: function(context){
+            return stripJs(context);
+        }
+    }
+}));
 
 app.set('view engine', '.hbs');
 
@@ -253,27 +256,3 @@ blogData.initialize().then(() => {
 }).catch((err) => {
     console.log(err);
 })
-
-  
-app.engine(".hbs", exphbs.engine({
-    extname: ".hbs",
-    helpers: {
-        navLink: function(url, options){
-            return '<li' + 
-                ((url == app.locals.activeRoute) ? ' class="active" ' : '') + 
-                '><a href="' + url + '">' + options.fn(this) + '</a></li>';
-        },
-        equal: function (lvalue, rvalue, options) {
-            if (arguments.length < 3)
-                throw new Error("Handlebars Helper equal needs 2 parameters");
-            if (lvalue != rvalue) {
-                return options.inverse(this);
-            } else {
-                return options.fn(this);
-            }
-        },
-        safeHTML: function(context){
-            return stripJs(context);
-        }
-    }
-}));

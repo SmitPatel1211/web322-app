@@ -26,40 +26,40 @@ module.exports.initialize = function () {
 
 module.exports.getAllPosts = function(){
     return new Promise((resolve,reject)=>{
-        (posts.length > 0 ) ? resolve(posts) : reject("SORRY ERROR!!"); 
+        (posts.length > 0 ) ? resolve(posts) : reject("no results returned"); 
     });
 }
 
 module.exports.getPostsByCategory = function(category){
     return new Promise((resolve,reject)=>{
-        let post_f = posts.filter(post=>post.category == category);
+        let filteredPosts = posts.filter(post=>post.category == category);
 
-        if(post_f.length == 0){
-            reject("SORRY ERROR!!")
+        if(filteredPosts.length == 0){
+            reject("no results returned")
         }else{
-            resolve(post_f);
+            resolve(filteredPosts);
         }
     });
 }
 
 module.exports.getPostsByMinDate = function(minDateStr) {
     return new Promise((resolve, reject) => {
-        let post_f = posts.filter(post => (new Date(post.postDate)) >= (new Date(minDateStr)))
+        let filteredPosts = posts.filter(post => (new Date(post.postDate)) >= (new Date(minDateStr)))
 
-        if (post_f.length == 0) {
-            reject("SORRY ERROR!!")
+        if (filteredPosts.length == 0) {
+            reject("no results returned")
         } else {
-            resolve(post_f);
+            resolve(filteredPosts);
         }
     });
 }
 
 module.exports.getPostById = function(id){
     return new Promise((resolve,reject)=>{
-        let postfound = posts.find(post => post.id == id);
+        let foundPost = posts.find(post => post.id == id);
 
-        if(postfound){
-            resolve(postfound);
+        if(foundPost){
+            resolve(foundPost);
         }else{
             reject("no result returned");
         }
@@ -79,20 +79,20 @@ module.exports.addPost = function(postData){
 
 module.exports.getPublishedPosts = function(){
     return new Promise((resolve,reject)=>{
-        let post_f = posts.filter(post => post.published);
-        (post_f.length > 0) ? resolve(post_f) : reject("SORRY ERROR!!");
+        let filteredPosts = posts.filter(post => post.published);
+        (filteredPosts.length > 0) ? resolve(filteredPosts) : reject("no results returned");
     });
 }
 
 module.exports.getPublishedPostsByCategory = function(category){
     return new Promise((resolve,reject)=>{
-        let post_f = posts.filter(post => post.published && post.category == category);
-        (post_f.length > 0) ? resolve(post_f) : reject("SORRY ERROR!!");
+        let filteredPosts = posts.filter(post => post.published && post.category == category);
+        (filteredPosts.length > 0) ? resolve(filteredPosts) : reject("no results returned");
     });
 }
 
 module.exports.getCategories = function(){
     return new Promise((resolve,reject)=>{
-        (categories.length > 0 ) ? resolve(categories) : reject("SORRY ERROR!!"); 
+        (categories.length > 0 ) ? resolve(categories) : reject("no results returned"); 
     });
 }
