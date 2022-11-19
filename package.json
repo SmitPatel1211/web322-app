@@ -1,7 +1,6 @@
 {
   "name": "web322-app",
   "version": "1.0.0",
-  "description": "",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -19,5 +18,15 @@
     "nodemon": "^2.0.20",
     "streamifier": "^0.1.1",
     "strip-js": "^1.2.0"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SmitPatel1211/web322-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SmitPatel1211/web322-app/issues"
+  },
+  "homepage": "https://github.com/SmitPatel1211/web322-app#readme",
+  "description": ""
 }
