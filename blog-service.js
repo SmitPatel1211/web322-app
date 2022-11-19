@@ -13,7 +13,7 @@ module.exports.initialize = function () {
 
                 fs.readFile('./data/categories.json', 'utf8', (err, data) => {
                     if (err) {
-                        reject(err);
+                        reject(err); 
                     } else {
                         categories = JSON.parse(data);
                         resolve();

@@ -239,7 +239,7 @@ app.get('/categories', (req, res) => {
     })).catch(err => {
         res.render("categories", {message: "no results"});
     });
-});
+}); 
 
 app.use((req, res) => {
     res.status(404).render("404");
