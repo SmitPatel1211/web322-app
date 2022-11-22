@@ -1,11 +1,11 @@
 /*********************************************************************************
-*  WEB322 – Assignment 04
+*  WEB322 – Assignment 05
 *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
 *  (including 3rd party web sites) or distributed to other students.
 * 
 *  Name: Smit Anjaykumar Patel Student ID: 104424213 Date: 21 octomber 2022
 *
-*  Cyclic Web App URL: 
+*  Cyclic Web App URL: https://good-gray-piglet-cap.cyclic.app/blog
 *
 *  GitHub Repository URL: https://github.com/SmitPatel1211/web322-app
 *
@@ -37,6 +37,9 @@ cloudinary.config({
     secure: true
 });
 
+function onHTTPStart() {
+    console.log("Express http server listening on " + PORT);
+}
 
 
 
@@ -51,6 +54,8 @@ app.use(function(req,res,next){
     app.locals.viewingCategory = req.query.category;
     next();
 });
+
+app.use(express.urlencoded({extended: true}));
 
 app.get('/', (req, res) => {
     res.redirect("/blog");
@@ -172,7 +177,13 @@ app.post("/posts/add", upload.single("featureImage"), (req,res)=>{
 });
 
 app.get('/posts/add', (req, res) => {
-    res.render("addPost");
+    
+     
+     blogData.getCategories()
+
+     .then(data=>res.render("addPost",{categories:data}))
+     .catch(err=>res.render("addPost",{categories:[]}))
+
 });
 
 app.get('/post/:id', (req,res)=>{
@@ -241,9 +252,29 @@ app.get('/categories', (req, res) => {
     });
 }); 
 
-app.use((req, res) => {
-    res.status(404).render("404");
-})
+app.get("/categories/add",(req,res)=>{
+    res.render(path.join(__dirname+"/views/addCategory.hbs"));
+});
+
+app.post("/categories/add",(req,res)=>{
+    blogData.addCategory(req.body).then(()=>{
+        res.redirect("/categories");
+    })
+});
+
+app.get("/categories/delete/:id",(req,res)=>{
+    blogData.deleteCategoryById(req.params.id)
+    .then(res.redirect("/categories"))
+    .catch(err=>res.status(500).send("Unable to Remove Category / Category not found"))
+});
+
+app.get("/posts/delete/:id",(req,res)=>{
+    blogData.deletePostById(req.params.id)
+    .then(res.redirect("/posts"))
+    .catch(err=>res.status(500).send("Unable to Remove post / post not found"))
+});
+
+
 
 blogData.initialize().then(() => {
     app.listen(HTTP_PORT, () => {
@@ -271,8 +302,19 @@ app.engine(".hbs", exphbs.engine({
                 return options.fn(this);
             }
         },
+        formatDate: function(dateObj){
+            let year = dateObj.getFullYear();
+            let month = (dateObj.getMonth() + 1).toString();
+            let day = dateObj.getDate().toString();
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(2,"0" )}`;
+        },
+
         safeHTML: function(context){
             return stripJs(context);
         }
     }
 }));
+
+app.use((req, res) => {
+    res.status(404).render("404");
+})
