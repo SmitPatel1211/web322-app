@@ -5,7 +5,7 @@
 * 
 *  Name: Smit Anjaykumar Patel Student ID: 104424213 Date: 21 octomber 2022
 *
-*  Cyclic Web App URL: https://good-gray-piglet-cap.cyclic.app/blog
+*  Cyclic Web App URL: https://dull-gold-hen-slip.cyclic.app
 *
 *  GitHub Repository URL: https://github.com/SmitPatel1211/web322-app
 *
